@@ -1,16 +1,30 @@
 const { render } = require('ejs');
 const express = require('express');
+const morgan = require('morgan');
 
 //express app
 
 const app = express();
 
 
+// register view engine
+app.set('view engine', 'ejs');
+
 // listen for requests
 app.listen(3000);
 
-// register view engine
-app.set('view engine', 'ejs');
+//middleware staTic files
+
+app.use(express.static('public'));
+
+app.use(morgan('dev'));
+  
+app.use((req, res, next) => {
+    res.locals.path = req.path;
+    next();
+  });
+  
+
 // app.set('views','myviews');
 
 app.get('/', (req, res) => {
