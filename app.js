@@ -2,7 +2,7 @@ const { render } = require('ejs');
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose')
-const Blog = require('./models/blog');
+const blogRoutes = require('./routes/blogRoutes');
 
 
 //express app
@@ -23,7 +23,7 @@ app.set('view engine', 'ejs');
 //middleware staTic files
 
 app.use(express.static('public'));
-
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 app.use((req, res, next) => {
@@ -31,52 +31,19 @@ app.use((req, res, next) => {
     next();
   });
   
-app.get('/add-blog', (req, res) => {
-    const blog = new Blog({
-        title: 'new blog',
-        snppet: 'about my new blog',
-        body: 'more about my blog'
-    });
-
-    blog.save()
-        .then((result) => {
-            res.send(result)
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-});
-  
-app.get('/all-blogs' , (req, res) => {
-    Blog.find()
-        .then((result) => {
-            res.send(result);
-        })
-        .catch((err) => {
-            console.log(err)
-        });
-})
-
-// app.set('views','myviews');
-
+// routes
 app.get('/', (req, res) => {
-    const blogs = [
-      {title: 'Yoshi finds eggs', snippet: 'Lorem ipsum dolor sit amet consectetur'},
-      {title: 'Mario finds stars', snippet: 'Lorem ipsum dolor sit amet consectetur'},
-      {title: 'How to defeat bowser', snippet: 'Lorem ipsum dolor sit amet consectetur'},
-    ];
-    res.render('index', { title: 'Home', blogs });
-  });
-  
-  app.get('/about', (req, res) => {
-    res.render('about', { title: 'About' });
-  });
-  
-  app.get('/blogs/create', (req, res) => {
-    res.render('create', { title: 'Create a new blog' });
-  });
-  
-  // 404 page
-  app.use((req, res) => {
-    res.status(404).render('404', { title: '404' });
-  });
+  res.redirect('/blogs');
+});
+
+app.get('/about', (req, res) => {
+  res.render('about', { title: 'About' });
+});
+
+// blog routes
+app.use('/blogs', blogRoutes);
+
+// 404 page
+app.use((req, res) => {
+  res.status(404).render('404', { title: '404' });
+});
